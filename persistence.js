@@ -3,41 +3,50 @@ var logging = require('minilog')('persistence'),
     // defaults
     connectionName = 'default',
     connection = {},
+    connected = false,
+    connecting = false,
     configuration = {};
 
 function Persistence() { }
 
 Persistence.connect = function(done) {
-  connection = ConnectionHelper.connection(configuration);
-  connection.establish(done);
+  if (!connected) {
+    if (!connecting) {
+      connecting = true;
+      connection = ConnectionHelper.connection(configuration);
+      connection.establish(function() {
+        connected = true;
+        connecting = false;
+        if (done) {
+          done();
+        }
+      });
+    } else {
+      connection.readyListeners.push(done);
+    }
+  } else if (done) {
+    done();
+  }
 };
-
-function redis() {
-  if(!connection.client || !connection.client.connected) {
-    throw new Error("Client: Not connected to redis");
-  }
-  return connection.client;
-}
-
-function pubsub() {
-  if(!connection.subscriber || !connection.subscriber.connected) {
-    throw new Error("Pubsub: Not connected to redis");
-  }
-  return connection.subscriber;
-}
 
 Persistence.redis = function(value) {
   if (value) {
     connection.client = value;
   }
-  return redis();
+  if(!connection.client || !connection.client.connected) {
+    throw new Error('Client: Not connected to redis');
+  }
+  return connection.client;
 };
 
 Persistence.pubsub = function(value) {
   if(value) {
     connection.subscriber = value;
   }
-  return pubsub();
+  if(!connection.subscriber || !connection.subscriber.connected) {
+    throw new Error('Pubsub: Not connected to redis');
+  }
+  return connection.subscriber;
 };
 
 Persistence.setConfig = function(config) {
@@ -65,7 +74,7 @@ Persistence.applyPolicy = function(multi, key, policy) {
 };
 
 Persistence.readOrderedWithScores = function(key, policy, callback) {
-  var multi = redis().multi();
+  var multi = Persistence.redis().multi();
 
   switch(arguments.length) {
     case 3:
@@ -91,11 +100,11 @@ Persistence.readOrderedWithScores = function(key, policy, callback) {
 };
 
 Persistence.persistOrdered = function(key, value, callback) {
-  redis().zadd(key, Date.now(), JSON.stringify(value), callback);
+  Persistence.redis().zadd(key, Date.now(), JSON.stringify(value), callback);
 };
 
 Persistence.delWildCard = function(expr, callback) {
-  redis().keys(expr, function(err, results) {
+  Persistence.redis().keys(expr, function(err, results) {
     if(err) throw new Error(err);
     var counter = 0;
     if(!results.length) {
@@ -114,11 +123,11 @@ Persistence.delWildCard = function(expr, callback) {
 
 Persistence.del = function(key, callback) {
   logging.info('deleting', key);
-  redis().del(key, callback);
+  Persistence.redis().del(key, callback);
 };
 
 Persistence.readHashAll = function(hash, callback) {
-  redis().hgetall(hash, function (err, replies) {
+  Persistence.redis().hgetall(hash, function (err, replies) {
     if(err) throw new Error(err);
     if(replies) {
       Object.keys(replies).forEach(function(attr) {
@@ -136,34 +145,35 @@ Persistence.readHashAll = function(hash, callback) {
 
 Persistence.persistHash = function(hash, key, value) {
   logging.debug('persistHash:', hash, key, value);
-  redis().hset(hash, key, JSON.stringify(value), Persistence.handler);
+  Persistence.redis().hset(hash, key, JSON.stringify(value), Persistence.handler);
 };
 
 Persistence.expire = function(key, seconds) {
   logging.debug('expire', key, seconds);
-  redis().expire(key, seconds, Persistence.handler);
+  Persistence.redis().expire(key, seconds, Persistence.handler);
 };
 
 Persistence.ttl = function(key, callback) {
-  redis().ttl(key, callback);
+  Persistence.redis().ttl(key, callback);
 };
 
 Persistence.deleteHash = function(hash, key) {
   logging.debug('deleteHash:', hash, key);
-  redis().hdel(hash, key, Persistence.handler);
+  Persistence.redis().hdel(hash, key, Persistence.handler);
 };
 
 Persistence.publish = function(key, value, callback) {
   logging.debug('Redis pub:', key, value);
-  redis().publish(key, JSON.stringify(value), callback);
+  Persistence.redis().publish(key, JSON.stringify(value), callback);
 };
 
 Persistence.disconnect = function(callback) {
+  connected = false;
   connection.teardown(callback);
 };
 
 Persistence.keys = function(key, callback) {
-  redis().keys(key, callback);
+  Persistence.redis().keys(key, callback);
 };
 
 Persistence.handler = function(err) {
@@ -173,11 +183,11 @@ Persistence.handler = function(err) {
 };
 
 Persistence.incrby = function(key, incr) {
-  redis().incrby(key, incr, Persistence.handler);
+  Persistence.redis().incrby(key, incr, Persistence.handler);
 };
 
 Persistence.select = function(index) {
-  redis().select(index, Persistence.handler);
+  Persistence.redis().select(index, Persistence.handler);
 };
 
 module.exports = Persistence;
