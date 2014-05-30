@@ -21,18 +21,18 @@ function sentinelConnect(config) {
       index, sentinelHost, sentinelPort;
 
   if(!sentinels || !sentinels.length) {
-    throw new Error("Provide a valid sentinel cluster configuration ");
+    throw new Error('Provide a valid sentinel cluster configuration ');
   }
 
   //Pick a random sentinel for now.
   //Only one is supported by redis-sentinel-client,
   //if it's down, let's hope the next round catches the right one.
-  index = Math.floor(Math.random()*sentinels.length);
+  index = Math.floor(Math.random() * sentinels.length);
   sentinelHost = sentinels[index].host;
   sentinelPort = sentinels[index].port;
 
   if(!sentinelPort || !sentinelHost) {
-    throw new Error("Provide a valid sentinel cluster configuration ");
+    throw new Error('Provide a valid sentinel cluster configuration ');
   }
 
   client = sentinelLib.createClient(sentinelPort, sentinelHost, {
@@ -99,7 +99,7 @@ Connection.prototype.establish = function(ready) {
       self.establishDone();
     });
 
-    method = this.selectMethod();
+    var method = this.selectMethod();
 
     //create a client (read/write)
     this.client = method(this.config);

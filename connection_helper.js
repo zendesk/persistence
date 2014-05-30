@@ -9,14 +9,14 @@ ConnectionHelper.parse = function(configuration) {
   var config = {}, name = 'default';
 
   if(!configuration) {
-    throw new Error("No configuration provided");
+    throw new Error('No configuration provided');
   }
 
   if(configuration.use_connection) {
     name = configuration.use_connection;
     config = configuration.connection_settings && configuration.connection_settings[name];
     if(!config) {
-      throw new Error("No connection_settings provided: "+configuration  + " use_connection: "+ name);
+      throw new Error('No connection_settings provided: ' + configuration  + ' use_connection: ' + name);
     }
   } else {
     //legacy style
