@@ -23,6 +23,6 @@
     "callback_tracker": "*",
     "redis": "0.10.1",
     "redis-sentinel-client": "0.1.5",
-    "minilog": "0.1.0"
+    "minilog": "*"
   }
 }
