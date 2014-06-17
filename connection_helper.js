@@ -41,12 +41,16 @@ ConnectionHelper.connection = function(configuration) {
 ConnectionHelper.destroyConnection = function(configuration, done) {
   var name = ConnectionHelper.parse(configuration).name;
   var connection = connections[name];
-  if (!connection || connection.name)
+  if (!connection || !connection.name) {
+    done(new Error('No connection found'));
     return;
+  }
 
-  connection.teardown(function() {
-    delete connections[connection.name];
-    done();
+  connection.teardown(function(error) {
+    if(!error) {
+      delete connections[connection.name];
+    }
+    done(error);
   });
 };
 
