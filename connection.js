@@ -1,6 +1,6 @@
 var redisLib = require('redis'),
     Tracker = require('callback_tracker'),
-    sentinelLib = require('redis-sentinel-client'),
+    sentinelLib = require('redis-sentinel'),
     logging = require('minilog')('connection');
 
 function redisConnect(config) {
@@ -14,31 +14,19 @@ function redisConnect(config) {
 }
 
 function sentinelConnect(config) {
-  var client,
+  var client, options,
       redisAuth = config.redis_auth,
       sentinelMaster = config.id,
-      sentinels = config.sentinels,
-      index, sentinelHost, sentinelPort;
+      sentinels = config.sentinels;
 
-  if(!sentinels || !sentinels.length) {
+  if(!sentinels || !sentinels.length || !sentinelMaster) {
     throw new Error('Provide a valid sentinel cluster configuration ');
   }
 
-  //Pick a random sentinel for now.
-  //Only one is supported by redis-sentinel-client,
-  //if it's down, let's hope the next round catches the right one.
-  index = Math.floor(Math.random() * sentinels.length);
-  sentinelHost = sentinels[index].host;
-  sentinelPort = sentinels[index].port;
-
-  if(!sentinelPort || !sentinelHost) {
-    throw new Error('Provide a valid sentinel cluster configuration ');
+  if(redisAuth) {
+    options = { auth_pass: redisAuth };
   }
-
-  client = sentinelLib.createClient(sentinelPort, sentinelHost, {
-    auth_pass: redisAuth,
-    masterName: sentinelMaster
-  });
+  client = sentinelLib.createClient(sentinels, sentinelMaster, options);
 
   logging.info('Created a new Sentinel client.');
   return client;
