@@ -18,6 +18,12 @@ describe('given a connected persistence', function() {
     });
   });
 
+  describe('after connection', function() {
+    it('should be able to get client and subscriber', function() {
+      assert.ok(Persistence.redis());
+      assert.ok(Persistence.pubsub());
+    });
+  });
   describe('while handling errors', function() {
     it('should filter out non JSON redis strings (ie. do not return corrupted data)', function(done) {
 

@@ -3,34 +3,40 @@ var redisLib = require('redis'),
     sentinelLib = require('redis-sentinel'),
     logging = require('minilog')('connection');
 
-function redisConnect(config) {
-  var client = redisLib.createClient(config.port, config.host);
-  if (config.redis_auth) {
-    client.auth(config.redis_auth);
+var connectionMethods = {
+  redis: function (config, callback) {
+    var client = redisLib.createClient(config.port, config.host);
+    if (config.redis_auth) {
+      client.auth(config.redis_auth);
+    }
+
+    logging.info('Created a new Redis client.');
+    client.once('ready', function() {
+      callback(null, client);
+    });
+  },
+
+  sentinel: function (config, callback) {
+    var sentinel, options = { role: 'master' },
+    redisAuth = config.redis_auth,
+    sentinelMaster = config.id,
+    sentinels = config.sentinels;
+
+    if(!sentinels || !sentinels.length || !sentinelMaster) {
+      throw new Error('Provide a valid sentinel cluster configuration ');
+    }
+
+    if(redisAuth) {
+      options.auth_pass = redisAuth;
+    }
+    sentinel = sentinelLib.createClient(sentinels, sentinelMaster, options);
+
+    sentinel.once('ready', function() {
+      logging.info('Created a new Sentinel client.');
+      callback(null, sentinel);
+    });
   }
-
-  logging.info('Created a new Redis client.');
-  return client;
-}
-
-function sentinelConnect(config) {
-  var client, options,
-      redisAuth = config.redis_auth,
-      sentinelMaster = config.id,
-      sentinels = config.sentinels;
-
-  if(!sentinels || !sentinels.length || !sentinelMaster) {
-    throw new Error('Provide a valid sentinel cluster configuration ');
-  }
-
-  if(redisAuth) {
-    options = { auth_pass: redisAuth };
-  }
-  client = sentinelLib.createClient(sentinels, sentinelMaster, options);
-
-  logging.info('Created a new Sentinel client.');
-  return client;
-}
+};
 
 function Connection(name, config) {
   this.name = name;
@@ -42,9 +48,9 @@ function Connection(name, config) {
 }
 
 Connection.prototype.selectMethod = function() {
-  var method = redisConnect;
+  var method = 'redis';
   if(this.config.id || this.config.sentinels) {
-    method = sentinelConnect;
+    method = 'sentinel';
   }
   return method;
 };
@@ -87,17 +93,19 @@ Connection.prototype.establish = function(ready) {
       self.establishDone();
     });
 
-    var method = this.selectMethod();
+    var method = connectionMethods[this.selectMethod()];
 
     //create a client (read/write)
-    this.client = method(this.config);
-    logging.info('Created a new client.');
-    this.client.once('ready', tracker('client ready :'+ this.name));
+    method(this.config, tracker('client ready :' + this.name, function(error, client) {
+      logging.info('Created a new client.');
+      self.client = client;
+    }));
 
     //create a pubsub client
-    this.subscriber = method(this.config);
-    logging.info('Created a new subscriber.');
-    this.subscriber.once('ready', tracker('subscriber ready :'+ this.name));
+    method(this.config, tracker('subscriber ready :'+ this.name, function(error, subscriber) {
+      logging.info('Created a new subscriber.');
+      self.subscriber = subscriber;
+    }));
   }
 };
 
