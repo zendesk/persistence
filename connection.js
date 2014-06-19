@@ -123,8 +123,7 @@ Connection.prototype.establish = function(ready) {
     //create a client (read/write)
     method(this.config, tracker('client ready :' + this.name, function(error, client) {
       if(error) {
-        propagateError(ready, error);
-        return;
+        throw (error instanceof Error)? error : new Error(error);
       }
       logging.info('Created a new client.');
       self.client = client;
@@ -133,8 +132,7 @@ Connection.prototype.establish = function(ready) {
     //create a pubsub client
     method(this.config, tracker('subscriber ready :'+ this.name, function(error, subscriber) {
       if(error) {
-        propagateError(ready, error);
-        return;
+        throw (error instanceof Error)? error : new Error(error);
       }
       logging.info('Created a new subscriber.');
       self.subscriber = subscriber;
