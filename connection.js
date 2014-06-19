@@ -3,6 +3,18 @@ var redisLib = require('redis'),
     sentinelLib = require('redis-sentinel'),
     logging = require('minilog')('connection');
 
+var propagateError = function(callback, error) {
+  if(callback) {
+    callback(error);
+  } else {
+    if(error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error(error);
+    }
+  }
+};
+
 var connectionMethods = {
   redis: function (config, callback) {
     var client = redisLib.createClient(config.port, config.host);
@@ -23,7 +35,8 @@ var connectionMethods = {
     sentinels = config.sentinels;
 
     if(!sentinels || !sentinels.length || !sentinelMaster) {
-      throw new Error('Provide a valid sentinel cluster configuration ');
+      propagateError(callback, new Error('Provide a valid sentinel cluster configuration '));
+      return;
     }
 
     if(redisAuth) {
@@ -38,7 +51,8 @@ var connectionMethods = {
       }
 
       if(!master || master.length != 2) {
-        callback(new Error("Unknown master "+sentinelMaster));
+        propagateError(callback, new Error("Unknown master "+sentinelMaster));
+        return;
       }
 
       var newConfig = { host: master[0],
@@ -109,7 +123,8 @@ Connection.prototype.establish = function(ready) {
     //create a client (read/write)
     method(this.config, tracker('client ready :' + this.name, function(error, client) {
       if(error) {
-        throw new Error(error);
+        propagateError(ready, error);
+        return;
       }
       logging.info('Created a new client.');
       self.client = client;
@@ -118,7 +133,8 @@ Connection.prototype.establish = function(ready) {
     //create a pubsub client
     method(this.config, tracker('subscriber ready :'+ this.name, function(error, subscriber) {
       if(error) {
-        throw new Error(error);
+        propagateError(ready, error);
+        return;
       }
       logging.info('Created a new subscriber.');
       self.subscriber = subscriber;
