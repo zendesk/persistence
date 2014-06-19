@@ -17,7 +17,7 @@ var connectionMethods = {
   },
 
   sentinel: function (config, callback) {
-    var sentinel, options = { role: 'master' },
+    var sentinel, options = { role: 'sentinel' },
     redisAuth = config.redis_auth,
     sentinelMaster = config.id,
     sentinels = config.sentinels;
@@ -30,10 +30,21 @@ var connectionMethods = {
       options.auth_pass = redisAuth;
     }
     sentinel = sentinelLib.createClient(sentinels, sentinelMaster, options);
+    sentinel.send_command('SENTINEL', ['get-master-addr-by-name', sentinelMaster], function(error, master) {
+      sentinel.quit();
 
-    sentinel.once('ready', function() {
-      logging.info('Created a new Sentinel client.');
-      callback(null, sentinel);
+      if(error) {
+        callback(error);
+      }
+
+      if(!master || master.length != 2) {
+        callback(new Error("Unknown master "+sentinelMaster));
+      }
+
+      var newConfig = { host: master[0],
+                     port: master[1],
+                     redis_auth: config.redis_auth };
+      connectionMethods.redis(newConfig, callback);
     });
   }
 };
@@ -97,12 +108,18 @@ Connection.prototype.establish = function(ready) {
 
     //create a client (read/write)
     method(this.config, tracker('client ready :' + this.name, function(error, client) {
+      if(error) {
+        throw new Error(error);
+      }
       logging.info('Created a new client.');
       self.client = client;
     }));
 
     //create a pubsub client
     method(this.config, tracker('subscriber ready :'+ this.name, function(error, subscriber) {
+      if(error) {
+        throw new Error(error);
+      }
       logging.info('Created a new subscriber.');
       self.subscriber = subscriber;
     }));
