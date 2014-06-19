@@ -1,11 +1,14 @@
-var assert = require('assert'),
-    Persistence = require('../persistence.js'),
+var assert         = require('assert'),
+    SentinelHelper = require('simple_sentinel'),
+    Persistence    = require('../persistence.js'),
     client;
 
 describe('given a connected persistence', function() {
 
   before(function(done) {
-    Persistence.setConfig({ redis_host: 'localhost', redis_port: 6379 });
+    process.env.noverbose=true;
+    SentinelHelper.start({ redis: { ports: [ 16379 ] } });
+    Persistence.setConfig({ redis_host: 'localhost', redis_port: 16379 });
     Persistence.connect(function() {
       client = Persistence.redis();
       Persistence.delWildCard('*', done);
@@ -14,7 +17,10 @@ describe('given a connected persistence', function() {
 
   after(function(done) {
     Persistence.delWildCard('*', function() {
-      Persistence.disconnect(done);
+      Persistence.disconnect(function() {
+        SentinelHelper.stop({ redis: { ports: [ 16379 ] } });
+        done();
+      });
     });
   });
 
