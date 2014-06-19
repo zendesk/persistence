@@ -14,10 +14,7 @@ Persistence.connect = function(done) {
     if (!connecting) {
       connecting = true;
       connection = ConnectionHelper.connection(configuration);
-      connection.establish(function(error) {
-        if(error) {
-          throw error;
-        }
+      connection.establish(function() {
         connected = true;
         connecting = false;
         if (done) {
