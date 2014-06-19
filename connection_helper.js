@@ -46,11 +46,9 @@ ConnectionHelper.destroyConnection = function(configuration, done) {
     return;
   }
 
-  connection.teardown(function(error) {
-    if(!error) {
-      delete connections[connection.name];
-    }
-    done(error);
+  connection.teardown(function() {
+    delete connections[connection.name];
+    done();
   });
 };
 
