@@ -1,0 +1,12 @@
+### v0.3.0
+* Use redis-sentinel instead of redis-sentinel-client
+* Use latest redis library
+* Crash if master goes down
+* Tests for connection
+
+### v0.2.0
+* Use latest minilog version for logging
+
+### v0.1.1
+* Initial version (extracted from radar)
+* Support both redis; and sentinel through redis-sentinel-client
