@@ -1,48 +1,67 @@
 var redisLib = require('redis'),
     Tracker = require('callback_tracker'),
-    sentinelLib = require('redis-sentinel-client'),
+    sentinelLib = require('redis-sentinel'),
     logging = require('minilog')('connection');
 
-function redisConnect(config) {
-  var client = redisLib.createClient(config.port, config.host);
-  if (config.redis_auth) {
-    client.auth(config.redis_auth);
+var propagateError = function(callback, error) {
+  if(callback) {
+    callback(error);
+  } else {
+    if(error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error(error);
+    }
   }
+};
 
-  logging.info('Created a new Redis client.');
-  return client;
-}
+var connectionMethods = {
+  redis: function (config, callback) {
+    var client = redisLib.createClient(config.port, config.host);
+    if (config.redis_auth) {
+      client.auth(config.redis_auth);
+    }
 
-function sentinelConnect(config) {
-  var client,
-      redisAuth = config.redis_auth,
-      sentinelMaster = config.id,
-      sentinels = config.sentinels,
-      index, sentinelHost, sentinelPort;
+    logging.info('Created a new Redis client.');
+    client.once('ready', function() {
+      callback(null, client);
+    });
+  },
 
-  if(!sentinels || !sentinels.length) {
-    throw new Error('Provide a valid sentinel cluster configuration ');
+  sentinel: function (config, callback) {
+    var sentinel, options = { role: 'sentinel' },
+    redisAuth = config.redis_auth,
+    sentinelMaster = config.id,
+    sentinels = config.sentinels;
+
+    if(!sentinels || !sentinels.length || !sentinelMaster) {
+      propagateError(callback, new Error('Provide a valid sentinel cluster configuration '));
+      return;
+    }
+
+    if(redisAuth) {
+      options.auth_pass = redisAuth;
+    }
+    sentinel = sentinelLib.createClient(sentinels, sentinelMaster, options);
+    sentinel.send_command('SENTINEL', ['get-master-addr-by-name', sentinelMaster], function(error, master) {
+      sentinel.quit();
+
+      if(error) {
+        callback(error);
+      }
+
+      if(!master || master.length != 2) {
+        propagateError(callback, new Error("Unknown master "+sentinelMaster));
+        return;
+      }
+
+      var newConfig = { host: master[0],
+                     port: master[1],
+                     redis_auth: config.redis_auth };
+      connectionMethods.redis(newConfig, callback);
+    });
   }
-
-  //Pick a random sentinel for now.
-  //Only one is supported by redis-sentinel-client,
-  //if it's down, let's hope the next round catches the right one.
-  index = Math.floor(Math.random() * sentinels.length);
-  sentinelHost = sentinels[index].host;
-  sentinelPort = sentinels[index].port;
-
-  if(!sentinelPort || !sentinelHost) {
-    throw new Error('Provide a valid sentinel cluster configuration ');
-  }
-
-  client = sentinelLib.createClient(sentinelPort, sentinelHost, {
-    auth_pass: redisAuth,
-    masterName: sentinelMaster
-  });
-
-  logging.info('Created a new Sentinel client.');
-  return client;
-}
+};
 
 function Connection(name, config) {
   this.name = name;
@@ -54,9 +73,9 @@ function Connection(name, config) {
 }
 
 Connection.prototype.selectMethod = function() {
-  var method = redisConnect;
+  var method = 'redis';
   if(this.config.id || this.config.sentinels) {
-    method = sentinelConnect;
+    method = 'sentinel';
   }
   return method;
 };
@@ -99,17 +118,25 @@ Connection.prototype.establish = function(ready) {
       self.establishDone();
     });
 
-    var method = this.selectMethod();
+    var method = connectionMethods[this.selectMethod()];
 
     //create a client (read/write)
-    this.client = method(this.config);
-    logging.info('Created a new client.');
-    this.client.once('ready', tracker('client ready :'+ this.name));
+    method(this.config, tracker('client ready :' + this.name, function(error, client) {
+      if(error) {
+        throw (error instanceof Error)? error : new Error(error);
+      }
+      logging.info('Created a new client.');
+      self.client = client;
+    }));
 
     //create a pubsub client
-    this.subscriber = method(this.config);
-    logging.info('Created a new subscriber.');
-    this.subscriber.once('ready', tracker('subscriber ready :'+ this.name));
+    method(this.config, tracker('subscriber ready :'+ this.name, function(error, subscriber) {
+      if(error) {
+        throw (error instanceof Error)? error : new Error(error);
+      }
+      logging.info('Created a new subscriber.');
+      self.subscriber = subscriber;
+    }));
   }
 };
 

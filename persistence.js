@@ -169,7 +169,13 @@ Persistence.publish = function(key, value, callback) {
 
 Persistence.disconnect = function(callback) {
   connected = false;
-  connection.teardown(callback);
+  if(connection && (connection.client || connection.subscriber)) {
+    connection.teardown(callback);
+  } else {
+    if(callback) {
+      callback();
+    }
+  }
 };
 
 Persistence.keys = function(key, callback) {

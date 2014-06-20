@@ -21,8 +21,8 @@
   },
   "dependencies": {
     "callback_tracker": "*",
-    "redis": "0.10.1",
-    "redis-sentinel-client": "0.1.5",
+    "redis": "*",
+    "redis-sentinel": "*",
     "minilog": "*"
   }
 }
