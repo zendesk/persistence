@@ -31,13 +31,13 @@ describe('A sentinel-connected persistence', function() {
 
   before(function(done) {
     this.timeout(10000);
-    process.env.noverbose=true;
+    process.env.noverbose=!process.env.verbose;
     SentinelHelper.start(helperConfig);
     connect(done);
   });
   after(function() {
     child.kill();
-    process.env.noverbose=true;
+    process.env.noverbose=!process.env.verbose;
     SentinelHelper.stop(helperConfig);
   });
 
@@ -49,7 +49,7 @@ describe('A sentinel-connected persistence', function() {
           assert.ok(childRunning);
           done();
         });
-      }, 5000);
+      }, 9000);
     });
     //Kill master
     SentinelHelper.stop({ redis: { ports: [ 16379 ] } });
