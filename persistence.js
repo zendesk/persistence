@@ -164,7 +164,7 @@ Persistence.deleteHash = function(hash, key) {
 
 Persistence.publish = function(key, value, callback) {
   logging.debug('Redis pub:', key, value);
-  Persistence.redis().publish(key, JSON.stringify(value), callback);
+  Persistence.redis().publish(key, JSON.stringify(value), callback || Persistence.handler);
 };
 
 Persistence.disconnect = function(callback) {
