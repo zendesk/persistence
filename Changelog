@@ -1,3 +1,6 @@
+### next
+* Avoid argument rearrangement because of undefined callback
+
 ### v0.3.0
 * Use redis-sentinel instead of redis-sentinel-client
 * Use latest redis library
