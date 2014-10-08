@@ -1,4 +1,4 @@
-var ConnectionHelper = require('../connection_helper.js'),
+var ConnectionHelper = require('../lib/connection_helper.js'),
     assert = require('assert'),
     configuration = require('../configuration.example.js');
 

@@ -1,5 +1,5 @@
 var assert = require('assert'),
-    ConnectionHelper = require('../connection_helper.js'),
+    ConnectionHelper = require('../lib/connection_helper.js'),
     SentinelHelper = require('simple_sentinel'),
     client;
 
