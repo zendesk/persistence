@@ -1,7 +1,5 @@
 var assert = require('assert'),
-    ConnectionHelper = require('../connection_helper.js'),
-    SentinelHelper = require('simple_sentinel'),
-    client;
+    SentinelHelper = require('simple_sentinel');
 
 describe('A sentinel-connected persistence', function() {
   var child, childRunning;

@@ -77,6 +77,7 @@ describe('given a ConnectionHelper', function() {
         }
       };
     before(function() {
+      this.timeout(9000); 
       process.env.noverbose=true;
       SentinelHelper.start(helper_config);
     });
@@ -100,6 +101,7 @@ describe('given a ConnectionHelper', function() {
         ConnectionHelper.destroyConnection(config, done);
       });
     });
+
     it('should reuse existing connection', function(done) {
       var config = JSON.parse(JSON.stringify(configuration));
       config.use_connection = 'sentinel';

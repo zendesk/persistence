@@ -185,6 +185,7 @@ Persistence.keys = function(key, callback) {
 Persistence.handler = function(err) {
   if (err) {
     logging.error(err);
+    throw new Error(err);
   }
 };
 

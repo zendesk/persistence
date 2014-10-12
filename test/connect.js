@@ -10,4 +10,8 @@ process.on('message', function(message) {
       process.send('connected');
     });
   }
+  else if (message === 'test_error')
+  {
+    Persistence.handler({ msg: 'error msg' });
+  }
 });
