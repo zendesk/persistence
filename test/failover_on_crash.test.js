@@ -17,6 +17,7 @@ describe('For a sentinel-connected persistence', function() {
     child = require('child_process').fork(__dirname + '/connect.js');
     childRunning = true;
     child.on('message', function(message) {
+      console.log(message);
       if(message === 'connected') {
         done();
       }
@@ -42,7 +43,6 @@ describe('For a sentinel-connected persistence', function() {
   it('verify that a reconnected Persistence succeeds after an intentional crash', function(done) {
     this.timeout(10000);
     child.on('exit', function() {
-      console.log('child exit2: ');
       setTimeout(function() {
         connect(function() {
           assert.ok(childRunning);
