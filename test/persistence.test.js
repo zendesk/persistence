@@ -1,6 +1,6 @@
 var assert         = require('assert'),
     SentinelHelper = require('simple_sentinel'),
-    Persistence    = require('../persistence.js'),
+    Persistence    = require('../lib/persistence.js'),
     client;
 
 describe('given a connected persistence', function() {
