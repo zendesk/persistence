@@ -3,7 +3,6 @@ var assert = require('assert'),
 
 describe('For a sentinel-connected persistence', function() {
   var child, childRunning;
-
   var helperConfig = {
     redis: {
       ports: [ 16379, 16380, 16381 ]
@@ -30,18 +29,17 @@ describe('For a sentinel-connected persistence', function() {
 
   before(function(done) {
     this.timeout(10000);
-    process.env.noverbose=!process.env.verbose;
     SentinelHelper.start(helperConfig);
     connect(done);
   });
   after(function() {
+    this.timeout(10000);
     child.kill();
-    process.env.noverbose=!process.env.verbose;
     SentinelHelper.stop(helperConfig);
   });
 
   it('verify that a reconnected Persistence succeeds after an intentional crash', function(done) {
-    this.timeout(10000);
+    this.timeout(15000);
     child.on('exit', function() {
       setTimeout(function() {
         connect(function() {
