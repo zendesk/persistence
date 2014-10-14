@@ -1,4 +1,10 @@
-### next
+### v0.4.0
+* Changes for stream resource
+** List (with id) abstraction
+** Lock module
+** Id generator module (globally autoincrementing ids)
+
+### v0.3.1
 * Avoid argument rearrangement because of undefined callback
 
 ### v0.3.0
