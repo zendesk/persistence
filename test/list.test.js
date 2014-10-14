@@ -51,10 +51,10 @@ describe('given a list', function() {
     this.subscriber = Persistence.pubsub();
 
     this.start = function() {
-      var list = this;
+      var listSub = this;
       this.subscriber.subscribe(this.list);
       this.subscriber.on('message', function(channel, message) {
-        list.notifications.push(JSON.parse(message));
+        listSub.notifications.push(JSON.parse(message));
       });
     };
 
