@@ -1,7 +1,7 @@
 var assert = require('assert'),
     SentinelHelper = require('simple_sentinel');
 
-describe('A sentinel-connected persistence', function() {
+describe('For a sentinel-connected persistence', function() {
   var child, childRunning;
   var helperConfig = {
     redis: {
@@ -38,8 +38,8 @@ describe('A sentinel-connected persistence', function() {
     SentinelHelper.stop(helperConfig);
   });
 
-  it('should die if master fails, but able to restart with new master', function(done) {
-    this.timeout(30000);
+  it('verify that a reconnected Persistence succeeds after an intentional crash', function(done) {
+    this.timeout(15000);
     child.on('exit', function() {
       setTimeout(function() {
         connect(function() {
@@ -49,7 +49,7 @@ describe('A sentinel-connected persistence', function() {
       }, 9000);
     });
 
-    // Cause underlying redis to fail over
-    require('child_process').exec('redis-cli -p 26379 sentinel failover mymaster');
+    // Send a message to trigger the Persistence error handler in the child
+    child.send('test_error');
   });
 });
