@@ -1,5 +1,5 @@
 var assert = require('assert'),
-    ConnectionHelper = require('../connection_helper.js'),
+    ConnectionHelper = require('../lib/connection_helper.js'),
     SentinelHelper = require('simple_sentinel'),
     client;
 
@@ -37,11 +37,9 @@ describe('given a ConnectionHelper', function() {
         },
       };
     before(function() {
-      process.env.noverbose=true;
       SentinelHelper.start(helper_config);
     });
     after(function() {
-      process.env.noverbose=true;
       SentinelHelper.stop(helper_config);
     });
     it('should connect', function(done) {
@@ -77,11 +75,11 @@ describe('given a ConnectionHelper', function() {
         }
       };
     before(function() {
-      process.env.noverbose=true;
+      this.timeout(10000);
       SentinelHelper.start(helper_config);
     });
     after(function() {
-      process.env.noverbose=true;
+      this.timeout(10000);
       SentinelHelper.stop(helper_config);
     });
 

@@ -1,4 +1,4 @@
-var Persistence = require('../persistence.js');
+var Persistence = require('../lib/persistence.js');
 var configuration = require('../configuration.example.js');
 
 configuration.use_connection = 'sentinel';
