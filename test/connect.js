@@ -8,11 +8,7 @@ Persistence.setConfig(configuration);
 function Dummy () { }
 
 Dummy.prototype.toString = function() {
-  return this;
-}
-
-Dummy.prototype.test = function(pattern) {
-  return pattern == '/READONLY/'
+  return 'error string contains READONLY';
 }
 
 process.on('message', function(message) {
