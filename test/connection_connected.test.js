@@ -73,7 +73,7 @@ describe('given a ConnectionHelper', function() {
     };
 
     before(function() {
-      this.timeout(10000);
+      this.timeout(20000);
       SentinelHelper.start(helper_config);
     });
     after(function() {
@@ -109,7 +109,7 @@ describe('given a ConnectionHelper', function() {
     };
 
     before(function() {
-      this.timeout(10000);
+      this.timeout(20000);
       SentinelHelper.start(helper_config);
     });
     after(function() {
