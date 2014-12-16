@@ -1,3 +1,7 @@
+### v1.0.1
+* Crash when connection times out
+* Refactor connection.js
+
 ### v1.0.0
 * License updated
 

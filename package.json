@@ -1,6 +1,6 @@
 {
   "name": "persistence",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An abstraction library for redis and sentinel connection management",
   "main": "lib/index.js",
   "scripts": {
