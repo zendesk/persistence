@@ -95,7 +95,23 @@ describe('given a connected persistence', function() {
       });
     });
 
-    it('should get/set a single key', function(done) {
+    it('should get/set a single key from a hash', function(done) {
+      var hash = 'persistence.test';
+      var key = 'persistence.messages.object.test';
+      var objectValue = {
+        foo: 'bar'
+      };
+
+      Persistence.persistHash(hash, key, objectValue);
+      Persistence.readHashValue(hash, key, function(reply) {
+        if (reply) {
+          assert.deepEqual({ foo: 'bar' }, reply);
+          done();
+        }
+      });
+    });
+
+    it('should get/set a single standalone key', function(done) {
       var key = 'persistence.messages.object.test';
       var objectValue = {
         foo: 'bar'
@@ -109,6 +125,6 @@ describe('given a connected persistence', function() {
         }
       });
     });
-  });
 
+  });
 });
