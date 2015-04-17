@@ -94,6 +94,21 @@ describe('given a connected persistence', function() {
         });
       });
     });
+
+    it('should get/set a single key', function(done) {
+      var key = 'persistence.messages.object.test';
+      var objectValue = {
+        foo: 'bar'
+      };
+
+      Persistence.persistKey(key, objectValue);
+      Persistence.readKey(key, function (reply) {
+        if (reply) {
+          assert.deepEqual({ foo: 'bar' }, reply);
+          done();
+        }
+      });
+    });
   });
 
 });
