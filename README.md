@@ -4,7 +4,7 @@ An abstraction library for redis and sentinel connection management
 
 ## Copyright and license
 
-Copyright 2014 Zendesk
+Copyright 2015 Zendesk
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
