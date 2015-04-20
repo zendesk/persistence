@@ -8,7 +8,8 @@
     "pretest": "npm run check-modules",
     "test-redis": "ls ./test/*.test.js | xargs -n 1 -t -I {} sh -c 'TEST=\"{}\" npm run test-one'",
     "test": "npm run test-redis",
-    "test-one": "./node_modules/.bin/mocha --ui exports --reporter spec --slow 2000ms --timeout 4000ms --bail \"$TEST\""
+    "test-one": "./node_modules/.bin/mocha --ui exports --reporter spec --slow 2000ms --timeout 4000ms --bail \"$TEST\"",
+    "test-one-solo": "./node_modules/.bin/mocha --ui exports --reporter spec --slow 2000ms --timeout 4000ms --bail"
   },
   "repository": {
     "type": "git",
