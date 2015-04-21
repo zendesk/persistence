@@ -95,7 +95,7 @@ describe('given a connected persistence', function() {
       });
     });
 
-    it('should get/set a single key from a hash', function(done) {
+    it('should set/get a single key from a hash', function(done) {
       var hash = 'persistence.test';
       var key = 'persistence.messages.object.test';
       var objectValue = {
@@ -111,7 +111,7 @@ describe('given a connected persistence', function() {
       });
     });
 
-    it('should get/set a single standalone key', function(done) {
+    it('should set/get a single standalone key', function(done) {
       var key = 'persistence.messages.object.test';
       var objectValue = {
         foo: 'bar'
@@ -124,6 +124,40 @@ describe('given a connected persistence', function() {
           done();
         }
       });
+    });
+
+    it('should set/get a single standalone key with TTL', function(done) {
+      var key = 'persistence.messages.object.test';
+      var objectValue = {
+        foo: 'bar'
+      };
+
+      var keyTTL = 2;
+      Persistence.persistKey(key, objectValue, keyTTL);
+      Persistence.readKey(key, function (reply) {
+        if (reply) {
+          assert.deepEqual({ foo: 'bar' }, reply);
+          done();
+        }
+      });
+    });
+
+    it('should set and not get a single standalone key with expired TTL', function(done) {
+      this.timeout(4000);
+      var key = 'persistence.messages.object.test';
+      var objectValue = {
+        foo: 'bar'
+      };
+
+      var keyTTL = 2;
+      Persistence.persistKey(key, objectValue, keyTTL);
+      setTimeout(function () {
+        Persistence.readKey(key, function (reply) {
+          if (!reply) {
+            done();
+          }
+        });
+      }, 2500);
     });
 
   });
