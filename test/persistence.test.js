@@ -134,6 +134,10 @@ describe('given a connected persistence', function() {
 
       var keyTTL = 2;
       Persistence.persistKey(key, objectValue, keyTTL);
+      Persistence.redis().ttl(key, function (err, remainingTTL) {
+        if (err) return done(err);
+        assert.ok(remainingTTL && (0 <= remainingTTL && remainingTTL <= 2));
+      });
       Persistence.readKey(key, function (reply) {
         if (reply) {
           assert.deepEqual({ foo: 'bar' }, reply);
@@ -151,6 +155,10 @@ describe('given a connected persistence', function() {
 
       var keyTTL = 2;
       Persistence.persistKey(key, objectValue, keyTTL);
+      Persistence.redis().ttl(key, function (err, remainingTTL) {
+        if (err) return done(err);
+        assert.ok(remainingTTL && (0 <= remainingTTL && remainingTTL <= 2));
+      });
       setTimeout(function () {
         Persistence.readKey(key, function (reply) {
           if (!reply) {
