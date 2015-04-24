@@ -1,3 +1,7 @@
+### v1.0.3
+* fix use of multi in single key get/set methods
+* add expireTTL to single key get/set methods
+
 ### v1.0.2
 * add get/set methods for single keys
 
