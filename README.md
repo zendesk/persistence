@@ -2,6 +2,10 @@
 
 An abstraction library for redis and sentinel connection management
 
+## Status
+[![Build Status](https://travis-ci.org/zendesk/persistence.png?branch=master)](https://travis-ci.org/zendesk/persistence) <a href="https://codeclimate.com/github/zendesk/persistence"><img src="https://codeclimate.com/github/zendesk/persistence/badges/gpa.svg" /></a>
+
+
 ## Copyright and license
 
 Copyright 2015 Zendesk
