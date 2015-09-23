@@ -1,3 +1,7 @@
+### v1.0.4
+* pin redis to version 0.12.1 - see PR #12
+* update travis config and README.md badges
+
 ### v1.0.3
 * fix use of multi in single key get/set methods
 * add expireTTL to single key get/set methods
