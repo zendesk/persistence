@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "callback_tracker": "*",
-    "redis": "*",
+    "redis": "0.12.1",
     "redis-sentinel": "*",
     "minilog": "*"
   }
