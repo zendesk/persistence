@@ -18,6 +18,7 @@
   "license": "MIT",
   "devDependencies": {
     "mocha": "*",
+    "proxyquire": "^1.7.3",
     "simple_sentinel": "*"
   },
   "dependencies": {

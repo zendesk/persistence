@@ -78,9 +78,12 @@ describe('given a ConnectionHelper', function() {
       this.timeout(10000);
       SentinelHelper.start(helper_config);
     });
-    after(function() {
+    after(function(done) {
       this.timeout(10000);
       SentinelHelper.stop(helper_config);
+      setTimeout(function () {
+        done()
+      }, 200)
     });
 
     it('should connect', function(done) {
