@@ -1,7 +1,8 @@
-var assert         = require('assert'),
-    SentinelHelper = require('simple_sentinel'),
-    Persistence    = require('../lib/persistence.js'),
-    client;
+var assert = require('assert');
+var SentinelHelper = require('simple_sentinel');
+var Persistence = require('../lib/persistence.js');
+var client;
+var proxyquire = require('proxyquire');
 
 describe('given a connected persistence', function() {
 
@@ -44,6 +45,22 @@ describe('given a connected persistence', function() {
         });
       });
     });
+    it('should log an Error object', function () {
+      var logged
+      var spy = function () {
+        return {
+          error: function (x) {
+            logged = x
+          }
+        }
+      }
+      var Persistence = proxyquire('../lib/persistence', {'minilog': spy})
+
+      Persistence.handler('x');
+      assert(logged instanceof Error);
+      Persistence.handler(new Error('x'));
+      assert(logged instanceof Error);
+    })
   });
 
   describe('while persisting messages', function() {
