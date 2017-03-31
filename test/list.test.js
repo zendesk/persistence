@@ -8,8 +8,8 @@ describe('given a list', function() {
 
   before(function(done) {
     process.env.noverbose=true;
-    SentinelHelper.start({ redis: { ports: [ 16379 ] } });
-    Persistence.setConfig({ redis_host: 'localhost', redis_port: 16379 });
+    SentinelHelper.start({ redis: { ports: [ 16479 ] } });
+    Persistence.setConfig({ redis_host: 'localhost', redis_port: 16479 });
     Persistence.connect(function() {
       client = Persistence.redis();
       Persistence.delWildCard('*', done);
@@ -19,7 +19,7 @@ describe('given a list', function() {
   after(function(done) {
     Persistence.delWildCard('*', function() {
       Persistence.disconnect(function() {
-        SentinelHelper.stop({ redis: { ports: [ 16379 ] } });
+        SentinelHelper.stop({ redis: { ports: [ 16479 ] } });
         done();
       });
     });
