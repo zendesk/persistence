@@ -25,6 +25,7 @@
     "callback_tracker": "*",
     "redis": "0.12.1",
     "redis-sentinel": "zendesk/node-redis-sentinel.git",
-    "minilog": "*"
+    "minilog": "*",
+    "ioredis": "2.5.0"
   }
 }
