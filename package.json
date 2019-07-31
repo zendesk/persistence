@@ -17,14 +17,16 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "mocha": "*",
+    "mocha": "3.2.0",
     "proxyquire": "^1.7.3",
-    "simple_sentinel": "*"
+    "simple_sentinel": "0.1.18",
+    "json3":"3.3.2",
+    "lodash.create": "3.1.1"
   },
   "dependencies": {
-    "callback_tracker": "*",
+    "callback_tracker": "0.10.0",
     "redis": "0.12.1",
     "redis-sentinel": "zendesk/node-redis-sentinel.git",
-    "minilog": "*"
+    "minilog": "3.1.10"
   }
 }
