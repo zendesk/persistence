@@ -19,14 +19,17 @@
   "devDependencies": {
     "mocha": "3.2.0",
     "proxyquire": "^1.7.3",
-    "simple_sentinel": "0.1.18",
+    "simple_sentinel": "0.1.8",
     "json3":"3.3.2",
-    "lodash.create": "3.1.1"
+    "lodash.create": "3.1.1",
+    "callback_tracker": "0.10.0",
+    "minilog": "3.1.10",
+    "debug": "2.2.0",
+    "diff": "1.4.0",
+    "glob": "7.0.5"
   },
   "dependencies": {
-    "callback_tracker": "0.10.0",
     "redis": "0.12.1",
-    "redis-sentinel": "zendesk/node-redis-sentinel.git",
-    "minilog": "3.1.10"
+    "redis-sentinel": "zendesk/node-redis-sentinel.git"
   }
 }
