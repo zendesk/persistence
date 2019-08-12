@@ -326,8 +326,8 @@
       }
     },
     "proxyquire": {
-      "version": "1.7.11",
-      "resolved": "https://registry.npmjs.org/proxyquire/-/proxyquire-1.7.11.tgz",
+      "version": "1.7.3",
+      "resolved": "https://registry.npmjs.org/proxyquire/-/proxyquire-1.7.3.tgz",
       "integrity": "sha512-X2Va8fBfxlhwvRjZyoOWx2hK/Yr1nZC5HaqxkAtujt6ZUCDd3LMph6WEPqFS8CMW/F7WsNRiyWsAEUiMKaD1EQ==",
       "dev": true,
       "requires": {

@@ -18,7 +18,7 @@
   "license": "MIT",
   "devDependencies": {
     "mocha": "3.2.0",
-    "proxyquire": "^1.7.3",
+    "proxyquire": "1.7.3",
     "simple_sentinel": "0.1.8",
     "json3": "3.3.2",
     "lodash.create": "3.1.1",
