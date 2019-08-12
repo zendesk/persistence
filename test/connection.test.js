@@ -65,7 +65,7 @@ describe('given a ConnectionHelper', function() {
     });
   });
 
-  describe.skip('with sentinel configuration', function() {
+  describe('with sentinel configuration', function() {
       var helper_config = {
         redis : {
           ports: [ 16379, 16380, 16381 ]
