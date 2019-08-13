@@ -97,7 +97,7 @@ describe('given a ConnectionHelper', function() {
 
         var expected_sentinels = new Set(configuration.connection_settings.sentinel.sentinels);
         var received_sentinels = new Set(connection.config.sentinels);
-        assert.equal(received_sentinels, expected_sentinels);
+        assert.deepStrictEqual(received_sentinels, expected_sentinels);
 
         ConnectionHelper.destroyConnection(config, done);
       });
