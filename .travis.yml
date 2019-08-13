@@ -7,6 +7,7 @@ services:
 
 script:
     - redis-server --version
+    - npm update
     - verbose=1 npm test
 
 notifications:
