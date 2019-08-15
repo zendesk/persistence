@@ -8,8 +8,8 @@
     "pretest": "npm run check-modules",
     "test-redis": "ls ./test/*.test.js | xargs -n 1 -t -I {} sh -c 'TEST=\"{}\" npm run test-one'",
     "test": "npm run test-redis",
-    "test-one": "./node_modules/.bin/mocha --ui exports --reporter spec --slow 2000ms --timeout 4000ms --bail \"$TEST\"",
-    "test-one-solo": "./node_modules/.bin/mocha --ui exports --reporter spec --slow 2000ms --timeout 4000ms --bail"
+    "test-one": "./node_modules/.bin/mocha --ui exports --reporter spec --slow 2000ms --timeout 4000ms --bail \"$TEST\" --exit",
+    "test-one-solo": "./node_modules/.bin/mocha --ui exports --reporter spec --slow 2000ms --timeout 4000ms --bail --exit"
   },
   "repository": {
     "type": "git",
@@ -17,15 +17,13 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "mocha": "3.2.0",
+    "mocha": "5",
     "proxyquire": "1.7.3",
     "simple_sentinel": "0.1.8",
     "json3": "3.3.2",
     "lodash.create": "3.1.1",
-    "callback_tracker": "0.10.0",
-    "minilog": "3.1.10",
-    "debug": "2.2.0",
-    "diff": "1.4.0",
+    "callback_tracker": "0.1.0",
+    "minilog": "3.1.0",
     "glob": "7.0.5"
   },
   "dependencies": {
