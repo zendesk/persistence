@@ -1,8 +1,9 @@
 var assert = require('assert'),
-    SentinelHelper = require('simple_sentinel');
+    SentinelHelper = require('simple_sentinel'),
+    Persistence = require('../lib/persistence');
 
 describe('For a sentinel-connected persistence', function() {
-  var child, childRunning;
+  var child, connectionStatus;
   var helperConfig = {
     redis: {
       ports: [ 16379, 16380, 16381 ]
@@ -14,16 +15,22 @@ describe('For a sentinel-connected persistence', function() {
 
   var connect = function(done) {
     child = require('child_process').fork(__dirname + '/connect.js');
-    childRunning = true;
-    child.on('message', function(message) {
-      console.log(message);
-      if(message === 'connected') {
-        done();
+    child.on('message', function (message) {
+      switch (message) {
+        case 'connected':
+          connectionStatus = true;
+          done();
+          break;
+        case 'invalid_connection':
+          connectionStatus = false;
+          break;
+        case 'vaid_connection':
+          connectionStatus = true;
+          break;
+        default:
+          break;
       }
-    });
-    child.on('exit', function() {
-      childRunning = false;
-    });
+    })
     child.send('connect');
   };
 
@@ -35,21 +42,19 @@ describe('For a sentinel-connected persistence', function() {
   after(function() {
     this.timeout(10000);
     child.kill();
+    child.send('killoff');
     SentinelHelper.stop(helperConfig);
   });
 
   it('verify that a reconnected Persistence succeeds after an intentional crash', function(done) {
     this.timeout(15000);
-    child.on('exit', function() {
-      setTimeout(function() {
-        connect(function() {
-          assert.ok(childRunning);
-          done();
-        });
-      }, 9000);
-    });
-
-    // Send a message to trigger the Persistence error handler in the child
+    setTimeout(function () {
+      child.send('status');
+    }, 5000);
+    setTimeout(function() {
+      assert.ok(connectionStatus);
+      done();
+    }, 9000);
     child.send('test_error');
   });
 });

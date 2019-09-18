@@ -11,17 +11,30 @@ Dummy.prototype.toString = function() {
   return 'error string contains READONLY';
 }
 
+var intervalCommand;
+
 process.on('message', function(message) {
-  if(message === 'connect') {
-    Persistence.connect(function() {
-      process.send('connected');
-      setInterval(function() {
-        Persistence.persistHash('xyz', 'f', 1);
-      }, 1000);
-    });
-  }
-  else if (message === 'test_error')
-  {
-    Persistence.handler(new Dummy());
+  switch (message) {
+    case 'connect':
+      Persistence.connect(function() {
+        process.send('connected');
+        intervalCommand = setInterval(function() {
+          Persistence.persistHash('xyz', 'f', 1);
+        }, 1000);
+      });
+      break;
+    case 'test_error':
+      Persistence.handler(new Dummy());
+      break;
+    case 'killoff':
+      clearInterval(intervalCommand);
+      break;
+    case 'status':
+      process.send(Persistence.isConnectionReady() ? 'valid_connection' : 'invalid_connection');
+      break;
+    default:
+      console.log('Invalid message');
   }
 });
+
+
