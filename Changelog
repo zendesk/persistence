@@ -1,3 +1,17 @@
+### v1.08
+* pin dependencies and test CI in Node 4 - PR #17
+* update Mocha to v5 - PR #18
+* reconnect to new master after redis failover - PR #20:w
+
+### v1.07
+* fixes brittle test by using separate port numbers
+
+### v1.06
+* use forked version of sentintel client - see PR #14
+
+### v1.05
+* improve error reporting - see PR #13
+
 ### v1.0.4
 * pin redis to version 0.12.1 - see PR #12
 * update travis config and README.md badges
