@@ -28,6 +28,6 @@
   },
   "dependencies": {
     "redis": "2.8.0",
-    "redis-sentinel": "zendesk/node-redis-sentinel.git"
+    "redis-sentinel": "zendesk/node-redis-sentinel.git#kbui/update-redis-client"
   }
 }
