@@ -1,3 +1,6 @@
+### v1.0.9
+* Update redis client to `2.0.8`
+
 ### v1.08
 * pin dependencies and test CI in Node 4 - PR #17
 * update Mocha to v5 - PR #18
