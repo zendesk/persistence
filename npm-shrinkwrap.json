@@ -26,9 +26,14 @@
     },
     "redis-sentinel": {
       "version": "0.3.4",
-      "from": "zendesk/node-redis-sentinel#kbui/update-redis-client",
-      "resolved": "git://github.com/zendesk/node-redis-sentinel.git#d59954aef7c8d4b740f08b48cd1fded456eeb6b9",
+      "from": "zendesk/node-redis-sentinel",
+      "resolved": "git://github.com/zendesk/node-redis-sentinel.git#218fffe98b6e702e034e0874de4bc68bc78e5f7b",
       "dependencies": {
+        "redis": {
+          "version": "0.12.1",
+          "from": "redis@>=0.12.0 <0.13.0",
+          "resolved": "https://registry.npmjs.org/redis/-/redis-0.12.1.tgz"
+        },
         "when": {
           "version": "3.7.8",
           "from": "when@>=3.5.1 <4.0.0",
