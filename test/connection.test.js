@@ -29,7 +29,6 @@ describe('given a ConnectionHelper', function() {
       }
     }
   };
-
   describe('with redis configuration', function() {
       var helper_config = {
         redis : {
@@ -48,7 +47,7 @@ describe('given a ConnectionHelper', function() {
 
       var connection = ConnectionHelper.connection(config);
       connection.establish(function() {
-        assert.deepEqual(connection.config,  { host: 'localhost', port: 16379 });
+        assert.deepEqual(connection.config,  { host: 'localhost', port: 16379, enableReadyCheck: true });
         ConnectionHelper.destroyConnection(config, done);
       });
     });
@@ -58,7 +57,7 @@ describe('given a ConnectionHelper', function() {
 
       var connection = ConnectionHelper.connection(config);
       connection.establish(function() {
-        assert.deepEqual(connection.config,  { host: 'localhost', port: 16379 });
+        assert.deepEqual(connection.config,  { host: 'localhost', port: 16379, enableReadyCheck: true });
         assert.deepEqual(connection, ConnectionHelper.connection(config));
         ConnectionHelper.destroyConnection(config, done);
       });
@@ -90,7 +89,6 @@ describe('given a ConnectionHelper', function() {
 
       var config = JSON.parse(JSON.stringify(configuration));
       config.use_connection = 'sentinel';
-
       var connection = ConnectionHelper.connection(config);
       connection.establish(function() {
         assert.equal(connection.config.id,  configuration.connection_settings.sentinel.id);
@@ -115,7 +113,6 @@ describe('given a ConnectionHelper', function() {
       });
     });
   });
-
   describe('given a connection', function() {
     var connection;
     var config = JSON.parse(JSON.stringify(configuration));
@@ -149,5 +146,4 @@ describe('given a ConnectionHelper', function() {
       });
     });
   });
-
 });
