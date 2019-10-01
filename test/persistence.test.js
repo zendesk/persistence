@@ -79,11 +79,10 @@ describe('given a connected persistence', function() {
           return done(err);
         }
         Persistence.readOrderedWithScores(key, undefined, function(replies) {
-          console.log(replies[1]);
-          assert(replies instanceof Array);
-          assert.equal(2, replies.length);
-          assert.equal('string', typeof replies[1]);
-          assert.equal(JSON.stringify(objectValue), replies[1]);
+          assert(replies[1] instanceof Array);
+          assert.equal(2, replies[1].length);
+          assert.equal('string', typeof replies[1][0]);
+          assert.equal(JSON.stringify(objectValue), replies[1][0]);
           done();
         });
       });
@@ -102,11 +101,10 @@ describe('given a connected persistence', function() {
           return done(err);
         }
         Persistence.readOrderedWithScores(key, undefined, function(replies) {
-
-          assert(replies instanceof Array);
-          assert.equal(2, replies.length);
-          assert.equal('string', typeof replies[0]);
-          assert.equal(JSON.stringify(stringValue), replies[0]);
+          assert(replies[1] instanceof Array);
+          assert.equal(2, replies[1].length);
+          assert.equal('string', typeof replies[1][0]);
+          assert.equal(JSON.stringify(stringValue), replies[1][0]);
           done();
         });
       });
