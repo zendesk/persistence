@@ -159,11 +159,11 @@ describe('given a list', function() {
           list.info(function(err, start, end, length){
             assert.equal(err, null);
             assert.equal(start, 3);
-            assert.equal(end, 5);
+            assert.equal(end, 6);
             assert.equal(length, 3);
             list.read(null, start, end, length, function(err, list) {
               assert.ok(!err);
-              assert.deepEqual(list, [{ value: 30, id: 3 }, { value: 40, id: 4 }, { value: 50, id: 5 }]);
+              assert.deepEqual(list, [{ value: 30, id: 3 }, { value: 40, id: 5 }, { value: 50, id: 6 }]);
               done();
             });
           });

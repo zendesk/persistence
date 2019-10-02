@@ -48,7 +48,9 @@ describe('given a ConnectionHelper', function() {
       var connection = ConnectionHelper.connection(config);
       connection.establish(function() {
         assert.deepEqual(connection.config,  { host: 'localhost', port: 16379, enableReadyCheck: true });
-        ConnectionHelper.destroyConnection(config, done);
+        connection.teardown(function() {
+          ConnectionHelper.destroyConnection(config, done);
+        })
       });
     });
     it('should reuse existing connection', function(done) {
@@ -59,7 +61,9 @@ describe('given a ConnectionHelper', function() {
       connection.establish(function() {
         assert.deepEqual(connection.config,  { host: 'localhost', port: 16379, enableReadyCheck: true });
         assert.deepEqual(connection, ConnectionHelper.connection(config));
-        ConnectionHelper.destroyConnection(config, done);
+        connection.teardown(function() {
+          ConnectionHelper.destroyConnection(config, done);
+        })
       });
     });
   });
@@ -86,7 +90,6 @@ describe('given a ConnectionHelper', function() {
     });
 
     it('should connect', function(done) {
-
       var config = JSON.parse(JSON.stringify(configuration));
       config.use_connection = 'sentinel';
       var connection = ConnectionHelper.connection(config);
@@ -96,8 +99,9 @@ describe('given a ConnectionHelper', function() {
         var expected_sentinels = new Set(configuration.connection_settings.sentinel.sentinels);
         var received_sentinels = new Set(connection.config.sentinels);
         assert.deepStrictEqual(received_sentinels, expected_sentinels);
-
-        ConnectionHelper.destroyConnection(config, done);
+        connection.teardown(function() {
+          ConnectionHelper.destroyConnection(config, done);
+        })
       });
     });
 
@@ -109,7 +113,9 @@ describe('given a ConnectionHelper', function() {
  
       connection.establish(function() {
         assert.deepEqual(connection, ConnectionHelper.connection(config));
-        ConnectionHelper.destroyConnection(config, done);
+        connection.teardown(function() {
+          ConnectionHelper.destroyConnection(config, done);
+        })
       });
     });
   });
