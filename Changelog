@@ -1,3 +1,6 @@
+### v2.0.0
+* Replace node redis with ioredis
+
 ### v1.0.10
 * Update redis client to `0.12.1`
 
