@@ -1,3 +1,6 @@
+### v1.0.10
+* Update redis client to `0.12.1`
+
 ### v1.0.9
 * Update redis client to `2.0.8`
 
