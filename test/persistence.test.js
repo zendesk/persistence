@@ -79,7 +79,6 @@ describe('given a connected persistence', function() {
           return done(err);
         }
         Persistence.readOrderedWithScores(key, undefined, function(replies) {
-
           assert(replies instanceof Array);
           assert.equal(2, replies.length);
           assert.equal('string', typeof replies[0]);
@@ -102,7 +101,6 @@ describe('given a connected persistence', function() {
           return done(err);
         }
         Persistence.readOrderedWithScores(key, undefined, function(replies) {
-
           assert(replies instanceof Array);
           assert.equal(2, replies.length);
           assert.equal('string', typeof replies[0]);
