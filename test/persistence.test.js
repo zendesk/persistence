@@ -57,9 +57,9 @@ describe('given a connected persistence', function() {
       var Persistence = proxyquire('../lib/persistence', {'minilog': spy})
 
       Persistence.handler('x');
-      assert(logged instanceof Error);
+      assert(logged.message instanceof Error);
       Persistence.handler(new Error('x'));
-      assert(logged instanceof Error);
+      assert(logged.message instanceof Error);
     })
   });
 
