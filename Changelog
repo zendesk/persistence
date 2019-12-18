@@ -1,3 +1,7 @@
+### v2.0.1
+* Reformat log to be JSON format.
+* Update ioredis to `4.15.0`
+
 ### v2.0.0
 * Replace node redis with ioredis
 
