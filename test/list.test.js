@@ -86,7 +86,7 @@ describe('given a list', function() {
       setTimeout(function() {
         l.validate([{ value: 'hi', id: 1 }, { value: 'world', id: 2 }]);
         done();
-      },10);
+      },20);
     });
 
     describe('concurrently with another process', function() {
