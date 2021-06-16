@@ -1,6 +1,6 @@
 {
   "name": "persistence",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "An abstraction library for redis and sentinel connection management",
   "main": "lib/index.js",
   "scripts": {
@@ -13,7 +13,9 @@
     "test-one-solo": "mocha --reporter spec --slow 2000ms --timeout 4000ms --bail --exit"
   },
   "standard": {
-    "env": ["mocha"]
+    "env": [
+      "mocha"
+    ]
   },
   "repository": {
     "type": "git",
