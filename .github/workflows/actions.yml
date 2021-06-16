@@ -1,0 +1,24 @@
+name: CI
+on: [push]
+jobs:
+  main:
+    name: npm test
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        versions:
+          - 12
+          - 14
+          - 16
+    steps:
+      - uses: zendesk/checkout@v2
+      - uses: zendesk/setup-node@v2
+        with:
+          node-version: ${{ matrix.version }}
+      - name: install
+        run: |
+          sudo apt update
+          sudo apt install -y redis-server
+          npm install
+      - name: npm test ${{ matrix.version }}
+        run: verbose=1 npm test
