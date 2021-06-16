@@ -20,7 +20,7 @@
     "callback_tracker": "0.1.0",
     "glob": "^7.1.7",
     "json3": "^3.3.3",
-    "lodash.create": "3.1.1",
+    "lodash.create": "^4.2.0",
     "minilog": "3.1.0",
     "mocha": "5",
     "proxyquire": "^2.1.3",
