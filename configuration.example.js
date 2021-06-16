@@ -10,22 +10,21 @@ module.exports = {
       // sentinel master name is required
       id: 'mymaster',
       sentinels: [
-      {
-        host: 'localhost',
-        port: 26379
-      },
-      {
-        host: 'localhost',
-        port: 26380
-      },
-      {
-        host: 'localhost',
-        port: 26381
-      }]
+        {
+          host: 'localhost',
+          port: 26379
+        },
+        {
+          host: 'localhost',
+          port: 26380
+        },
+        {
+          host: 'localhost',
+          port: 26381
+        }]
     }
   },
 
-  //Select the config to use
-  use_connection: 'redis',
-};
-
+  // Select the config to use
+  use_connection: 'redis'
+}

@@ -5,11 +5,15 @@
   "main": "lib/index.js",
   "scripts": {
     "check-modules": "if [ -z \"$SKIP_PACKAGE_CHECK\" ] && [ ./package.json -nt ./node_modules ]; then echo 'Your node_modules are out of date. Please run \"npm update\"' && exit 1; fi",
+    "lint": "standard",
     "pretest": "npm run check-modules",
     "test-redis": "ls ./test/*.test.js | xargs -n 1 -t -I {} sh -c 'TEST=\"{}\" npm run test-one'",
     "test": "npm run test-redis",
     "test-one": "mocha --reporter spec --slow 2000ms --timeout 4000ms --bail \"$TEST\" --exit",
     "test-one-solo": "mocha --reporter spec --slow 2000ms --timeout 4000ms --bail --exit"
+  },
+  "standard": {
+    "env": ["mocha"]
   },
   "repository": {
     "type": "git",
@@ -24,7 +28,8 @@
     "minilog": "3.1.0",
     "mocha": "^9.0.0",
     "proxyquire": "^2.1.3",
-    "simple_sentinel": "0.1.8"
+    "simple_sentinel": "0.1.8",
+    "standard": "^16.0.3"
   },
   "dependencies": {
     "ioredis": "^4.27.6"
