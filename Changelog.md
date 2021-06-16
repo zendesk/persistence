@@ -1,3 +1,7 @@
+### v2.0.2
+* [PR #30](https://github.com/zendesk/persistence/pull/30) Upgrades packages
+* [PR #29](https://github.com/zendesk/persistence/pull/29) Replaces Travis with Github Actions
+
 ### v2.0.1
 * [PR #27](https://github.com/zendesk/persistence/pull/27) Adds node v12 to
 Travis
