@@ -3,13 +3,12 @@ on: [push]
 jobs:
   main:
     name: npm test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         versions:
-          - 12
-          - 14
-          - 16
+          - 18
+          - 20
     steps:
       - uses: zendesk/checkout@v2
       - uses: zendesk/setup-node@v2
