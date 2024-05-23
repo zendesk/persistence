@@ -2,6 +2,10 @@ const assert = require('assert')
 const ConnectionHelper = require('../lib/connection_helper.js')
 const SentinelHelper = require('simple_sentinel')
 
+beforeEach(function () {
+  process.env.RADAR_MIGRATION_ENABLED = 'false'
+})
+
 describe('given a ConnectionHelper', function () {
   const configuration = {
     connection_settings: {
@@ -103,6 +107,71 @@ describe('given a ConnectionHelper', function () {
         })
       })
     })
+
+    it('should connect to both Redis and Replica', function (done) {
+      process.env.RADAR_MIGRATION_ENABLED = 'true'
+      const configurationWithReplica = {
+        connection_settings: {
+          main: {
+            redisReplicaUrl: parseUrl('redis://localhost:26379'),
+            redis: {
+              host: 'localhost',
+              port: 16379
+            },
+            sentinel: {
+              // sentinel master name is required
+              id: 'mymaster',
+              sentinels: [
+                {
+                  host: 'localhost',
+                  port: 26379
+                },
+                {
+                  host: 'localhost',
+                  port: 26380
+                },
+                {
+                  host: 'localhost',
+                  port: 26381
+                }]
+            }
+          }
+        }
+      }
+      const config = JSON.parse(JSON.stringify(configurationWithReplica))
+      config.use_connection = 'main'
+      const connection = ConnectionHelper.connection(config)
+      connection.establish(function (ready) {
+        assert.equal(connection.client.status, 'ready')
+        assert.equal(connection.replicaClient.status, 'ready')
+        connection.teardown(function () {
+          ConnectionHelper.destroyConnection(config, done)
+        })
+      })
+    })
+
+    function parseUrl (redisUrl) {
+      const urlParser = require('url')
+      const parsedUrl = new urlParser.URL(redisUrl)
+      console.log('parsedUrl: ', parsedUrl)
+      console.log('hostname: ', parsedUrl.hostname)
+      console.log('port: ', parsedUrl.port)
+      const config = {
+        host: parsedUrl.hostname,
+        port: parsedUrl.port
+      }
+
+      if (parsedUrl.auth) {
+        // the password part of user:pass format
+        config.redis_auth = parsedUrl.auth.substr(parsedUrl.auth.indexOf(':') + 1)
+      }
+
+      if (redisUrl.startsWith('rediss://')) {
+        config.tls = {}
+      }
+
+      return config
+    }
 
     it('should reuse existing connection', function (done) {
       const config = JSON.parse(JSON.stringify(configuration))
