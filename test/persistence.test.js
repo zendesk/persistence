@@ -182,3 +182,133 @@ describe('given a connected persistence', function () {
     })
   })
 })
+
+describe('given the migration is enabled', function () {
+  before(function (done) {
+    process.env.noverbose = true
+    process.env.RADAR_MIGRATION_ENABLED = 'true'
+
+    const configurationWithReplica = {
+      connection_settings: {
+        withReplica: {
+          host: 'localhost',
+          port: 16379,
+          redisReplicaUrl: { host: 'localhost', port: 16380 }
+        }
+      }
+    }
+
+    const config = JSON.parse(JSON.stringify(configurationWithReplica))
+
+    config.use_connection = 'withReplica'
+    SentinelHelper.start({ redis: { ports: [16379] } })
+    SentinelHelper.start({ redis: { ports: [16380] } })
+    Persistence.setConfig(config)
+
+    Persistence.connect(function () {
+      client = Persistence.redis()
+      Persistence.delWildCard('*', done)
+    })
+  })
+
+  after(function (done) {
+    Persistence.delWildCard('*', function () {
+      Persistence.disconnect(function () {
+        SentinelHelper.stop({ redis: { ports: [16379] } })
+        SentinelHelper.stop({ redis: { ports: [16380] } })
+        done()
+      })
+    })
+  })
+
+  describe('after connection', function () {
+    it('should be able to get client and subscriber', function () {
+      assert.ok(Persistence.redis())
+      assert.ok(Persistence.redisReplica())
+      assert.ok(Persistence.pubsub())
+    })
+  })
+  describe('while persisting messages to the replica', function () {
+    it('should set a single standalone key to the replica', function (done) {
+      const key = 'persistence.replica.messages.object.test'
+      const objectValue = { foo: 'bar' }
+
+      Persistence.persistKey(key, objectValue)
+      Persistence.redisReplica().get(key, (err, result) => {
+        if (err) return done(err)
+        assert.deepEqual({ foo: 'bar' }, JSON.parse(result))
+        done()
+      })
+    })
+
+    it('should set a single key from a hash to the replica', function (done) {
+      const hash = 'persistence.test'
+      const key = 'persistence.replica.messages.object.test'
+      const objectValue = {
+        foo: 'bar'
+      }
+
+      Persistence.persistHash(hash, key, objectValue)
+      Persistence.redisReplica()
+        .hget(hash, key)
+        .then((reply) => {
+          assert.deepEqual({ foo: 'bar' }, JSON.parse(reply))
+          done()
+        })
+    })
+
+    it('should set a single standalone key with TTL to the replica', function (done) {
+      const key = 'persistence.replica.messages.object.test'
+      const objectValue = {
+        foo: 'bar'
+      }
+
+      const keyTTL = 2
+      Persistence.persistKey(key, objectValue, keyTTL)
+      Persistence.redisReplica().ttl(key, function (err, remainingTTL) {
+        if (err) return done(err)
+        assert.ok(remainingTTL && (remainingTTL >= 0 && remainingTTL <= 2))
+        done()
+      })
+    })
+
+    it('should set and not get a single standalone key with expired TTL from the replica', function (done) {
+      this.timeout(4000)
+      const key = 'persistence.replica.messages.object.test'
+      const objectValue = {
+        foo: 'bar'
+      }
+
+      const keyTTL = 2
+      Persistence.persistKey(key, objectValue, keyTTL)
+      Persistence.redisReplica().ttl(key, function (err, remainingTTL) {
+        if (err) return done(err)
+        assert.ok(remainingTTL && (remainingTTL >= 0 && remainingTTL <= 2))
+      })
+      setTimeout(function () {
+        Persistence.redisReplica().get(key, (err, result) => {
+          if (err) return done(err)
+          if (!result) {
+            done()
+          }
+        })
+      }, 2500)
+    })
+
+    it('should not get a single standalone key after deleting from the replica', function (done) {
+      const key = 'persistence.replica.messages.object.test'
+      const objectValue = {
+        foo: 'bar'
+      }
+
+      Persistence.persistKey(key, objectValue)
+      Persistence.del(key)
+      Persistence.redisReplica().get(key, (err, result) => {
+        if (err) return done(err)
+        if (!result) {
+          done()
+        }
+      })
+    })
+  })
+})
