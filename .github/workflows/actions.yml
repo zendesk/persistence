@@ -3,7 +3,7 @@ on: [push]
 jobs:
   main:
     name: npm test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         versions:
