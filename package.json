@@ -9,8 +9,8 @@
     "pretest": "npm run check-modules",
     "test-redis": "ls ./test/*.test.js | xargs -n 1 -t -I {} sh -c 'TEST=\"{}\" npm run test-one'",
     "test": "npm run test-redis",
-    "test-one": "mocha --reporter spec --slow 5000ms --timeout 10000ms --bail \"$TEST\" --exit",
-    "test-one-solo": "mocha --reporter spec --slow 5000ms --timeout 10000ms --bail --exit"
+    "test-one": "mocha --reporter spec --slow 2000ms --timeout 4000ms --bail \"$TEST\" --exit",
+    "test-one-solo": "mocha --reporter spec --slow 2000ms --timeout 4000ms --bail --exit"
   },
   "standard": {
     "env": [
