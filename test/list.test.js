@@ -1,6 +1,36 @@
 const assert = require('assert')
 const SentinelHelper = require('simple_sentinel')
 const Persistence = require('../lib/index.js')
+const PersistenceTestHelper = require('./persistence_test_helper.test.js')
+const IdGen = require('../lib/id_gen.js')
+
+function validateList (list, done) {
+  const parsed = []
+  Persistence.redis().lrange('test-list', 0, -1, function (error, entries) {
+    if (error) {
+      throw new Error(error)
+    }
+    entries.forEach(function (entry) {
+      parsed.push(JSON.parse(entry))
+    })
+    assert.deepEqual(parsed, list)
+    done()
+  })
+}
+
+function validateReplicaList (list, done) {
+  const parsed = []
+  Persistence.redisReplica().lrange('test-list', 0, -1, function (error, entries) {
+    if (error) {
+      throw new Error(error)
+    }
+    entries.forEach(function (entry) {
+      parsed.push(JSON.parse(entry))
+    })
+    assert.deepEqual(parsed, list)
+    done()
+  })
+}
 
 describe('given a list', function () {
   let list
@@ -31,20 +61,6 @@ describe('given a list', function () {
   afterEach(function (done) {
     Persistence.delWildCard('*', done)
   })
-
-  function validateList (list, done) {
-    const parsed = []
-    Persistence.redis().lrange('test-list', 0, -1, function (error, entries) {
-      if (error) {
-        throw new Error(error)
-      }
-      entries.forEach(function (entry) {
-        parsed.push(JSON.parse(entry))
-      })
-      assert.deepEqual(parsed, list)
-      done()
-    })
-  }
 
   function ListSubscriber (list) {
     this.notifications = []
@@ -174,6 +190,133 @@ describe('given a list', function () {
               done()
             })
           })
+        })
+      })
+    })
+  })
+})
+
+describe('given migration is enabled', function () {
+  let list
+  before(function (done) {
+    process.env.noverbose = true
+    process.env.RADAR_MIGRATION_ENABLED = 'true'
+    PersistenceTestHelper.connectWithReplica()
+
+    Persistence.connect(function () {
+      Persistence.delWildCard('*', done)
+    })
+  })
+
+  after(function (done) {
+    Persistence.delWildCard('*', function () {
+      Persistence.disconnect(function () {
+        SentinelHelper.stop({ redis: { ports: [16379] } })
+        SentinelHelper.stop({ redis: { ports: [16380] } })
+        done()
+      })
+    })
+  })
+
+  beforeEach(function (done) {
+    list = new Persistence.List('test-list', 3600, 3)
+    Persistence.delWildCard('*', done)
+  })
+
+  afterEach(function (done) {
+    Persistence.delWildCard('*', done)
+  })
+
+  describe('when pushing new entries', function () {
+    it('should be able to stamp incrementing ids properly', function (done) {
+      list.push({ value: 'test' }, function (err, m) {
+        assert.ok(!err)
+        assert.equal(m.id, 1)
+        validateList([{ id: 1, value: 'test' }], function () {})
+        validateReplicaList([{ id: 1, value: 'test' }], done)
+      })
+    })
+  })
+})
+
+describe('given reading from replica is enabled', function () {
+  let list
+  before(function (done) {
+    process.env.noverbose = true
+    process.env.RADAR_MIGRATION_ENABLED = 'true'
+    process.env.RADAR_ELASTICACHE_ENABLED = 'true'
+    PersistenceTestHelper.connectWithReplica()
+
+    Persistence.connect(function () {
+      Persistence.delWildCard('*', done)
+    })
+  })
+
+  after(function (done) {
+    Persistence.delWildCard('*', function () {
+      Persistence.disconnect(function () {
+        SentinelHelper.stop({ redis: { ports: [16379] } })
+        SentinelHelper.stop({ redis: { ports: [16380] } })
+        done()
+      })
+    })
+  })
+
+  beforeEach(function (done) {
+    list = new Persistence.List('test-list', 3600, 3)
+    Persistence.delWildCard('*', done)
+  })
+
+  afterEach(function (done) {
+    Persistence.delWildCard('*', done)
+  })
+
+  describe('when read', function () {
+    it('should read from replica', function (done) {
+      const multi = Persistence.redis().multi()
+      const multiReplica = Persistence.redisReplica().multi()
+      const value = { value: 'test' }
+      const replicaValue = { value: 'replica-test' }
+      const entry = JSON.parse(JSON.stringify(value))
+      const replicaEntry = JSON.parse(JSON.stringify(replicaValue))
+      const idGen = new IdGen('id_gen:/' + list.name)
+
+      idGen.alloc(function (err, value) {
+        assert.ok(!err)
+        entry.id = value
+        multi.rpush(list.name, JSON.stringify(entry), Persistence.handler)
+        multi.exec()
+
+        replicaEntry.id = value
+        multiReplica.rpush(list.name, JSON.stringify(replicaEntry), Persistence.handler)
+        multiReplica.exec()
+
+        list.read(0, 0, 1, 1, function (err, list) {
+          assert.ok(!err)
+          assert.deepEqual(list, [{ value: 'replica-test', id: 1 }])
+          done()
+        })
+      })
+    })
+
+    it('should get info correctly from the replica', function (done) {
+      const multiReplica = Persistence.redisReplica().multi()
+      const replicaValue = { value: 'replica-test2' }
+      const replicaEntry = JSON.parse(JSON.stringify(replicaValue))
+      const idGen = new IdGen('id_gen:/' + list.name)
+
+      idGen.alloc(function (err, value) {
+        if (err) return done(err)
+        replicaEntry.id = value
+        multiReplica.rpush(list.name, JSON.stringify(replicaEntry), Persistence.handler)
+        multiReplica.exec()
+
+        list.info(function (err, start, end, length) {
+          assert.equal(err, null)
+          assert.equal(start, 2)
+          assert.equal(end, 2)
+          assert.equal(length, 1)
+          done()
         })
       })
     })
