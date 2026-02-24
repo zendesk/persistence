@@ -1,6 +1,6 @@
 {
   "name": "persistence",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "An abstraction library for redis and sentinel connection management",
   "main": "lib/index.js",
   "scripts": {
@@ -31,6 +31,6 @@
     "standard": "^16.0.4"
   },
   "dependencies": {
-    "ioredis": "^4.28.5"
+    "ioredis": "^5.0.0"
   }
 }
