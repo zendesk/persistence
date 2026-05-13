@@ -1,6 +1,29 @@
 const assert = require('assert')
 const ConnectionHelper = require('../lib/connection_helper.js')
 const SentinelHelper = require('simple_sentinel')
+const { execSync } = require('child_process')
+
+function gracefulShutdown (ports) {
+  // Shutdown all processes first via redis-cli (graceful shutdown)
+  ports.forEach(port => {
+    try {
+      execSync(`redis-cli -p ${port} shutdown nosave`, { stdio: 'ignore', timeout: 2000 })
+    } catch {
+      // Process may already be down
+    }
+  })
+  // Wait for processes to fully exit before allowing file cleanup
+  ports.forEach(port => {
+    for (let i = 0; i < 20; i++) {
+      try {
+        execSync(`redis-cli -p ${port} ping`, { stdio: 'ignore', timeout: 500 })
+        execSync('sleep 0.1')
+      } catch {
+        break
+      }
+    }
+  })
+}
 
 describe('given a ConnectionHelper', function () {
   const configuration = {
@@ -82,10 +105,11 @@ describe('given a ConnectionHelper', function () {
     })
     after(function (done) {
       this.timeout(10000)
+      // Gracefully shutdown processes and wait for them to exit before cleanup
+      // This avoids a race condition in simple_sentinel where rm -rf runs before processes fully exit
+      gracefulShutdown([...helperConfig.sentinel.ports, ...helperConfig.redis.ports])
       SentinelHelper.stop(helperConfig)
-      setTimeout(function () {
-        done()
-      }, 200)
+      done()
     })
 
     it('should connect', function (done) {
