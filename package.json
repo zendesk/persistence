@@ -35,6 +35,13 @@
   },
   "overrides": {
     "diff": "^8.0.3",
-    "serialize-javascript": "^7.0.5"
+    "serialize-javascript": "^7.0.5",
+    "js-yaml": "^4.3.1",
+    "brace-expansion": "^1.1.18",
+    "mocha": {
+      "minimatch": {
+        "brace-expansion": "^2.1.4"
+      }
+    }
   }
 }
